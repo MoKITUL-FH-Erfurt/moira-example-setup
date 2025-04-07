@@ -1,5 +1,12 @@
 version: '3'
 
+includes:
+  clone: ./tasks/clone/Taskfile.yml
+  build: ./tasks/build/Taskfile.yml
+  deploy: ./tasks/deploy/Taskfile.yml
+  install: ./tasks/install/Taskfile.yml
+  verify: ./tasks/verify/Taskfile.yml
+
 vars:
   github_base_url: "https://github.com/MoKITUL-FH-Erfurt"
   plugin_repos:
@@ -42,6 +49,13 @@ tasks:
       - task: build
       - task: deploy
       - task: install
+
+  clean:
+    desc: Clean up all plugin repositories
+    cmds:
+      - task: clone:clean-plugins
+      - task: clone:clean-api
+      - task: deploy:clean
 
   default:
     desc: Run all tasks in order - verify, clone, build, deploy, install

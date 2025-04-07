@@ -16,7 +16,7 @@ tasks:
             fi
           else
             echo "Cloning $dir..."
-            git clone "{{.github_base_url}}/$repo.git"
+            git clone "{{.github_base_url}}/$repo.git" || { echo "Error: Failed to clone $dir"; exit 1; }
           fi
         done
 
@@ -34,7 +34,7 @@ tasks:
           fi
         else
           echo "Cloning $dir..."
-          git clone "{{.github_base_url}}/{{.api_repo}}.git"
+          git clone "{{.github_base_url}}/{{.api_repo}}.git" || { echo "Error: Failed to clone $dir"; exit 1; }
         fi
 
   get-all:
@@ -42,3 +42,26 @@ tasks:
     cmds:
       - task: get-plugins
       - task: get-api
+
+  clean:
+    desc: Remove all cloned repositories
+    cmds:
+      - |
+        echo "Removing cloned plugin repositories..."
+        for repo in {{.plugin_repos}}; do
+          dir=$(basename "$repo" .git)
+          if [ -d "$dir" ]; then
+            echo "Removing $dir..."
+            rm -rf "$dir"
+          else
+            echo "Directory $dir does not exist."
+          fi
+        done
+        echo "Removing cloned API repository..."
+        dir=$(basename "{{.api_repo}}" .git)
+        if [ -d "$dir" ]; then
+          echo "Removing $dir..."
+          rm -rf "$dir"
+        else
+          echo "Directory $dir does not exist."
+        fi

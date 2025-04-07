@@ -16,6 +16,8 @@ tasks:
           fi
         else
           echo "nvm is not installed. Please install it from https://github.com/nvm-sh/nvm."
+
+          exit 1
         fi
 
         # Check if git is installed
@@ -23,6 +25,8 @@ tasks:
           echo "git is installed"
         else
           echo "git is not installed. Please install it using your package manager."
+
+          exit 1
         fi
 
         # Check if docker is installed
@@ -30,6 +34,8 @@ tasks:
           echo "docker is installed"
         else
           echo "docker is not installed. Please install it from https://www.docker.com."
+
+          exit 1
         fi
 
         # Check if ollama is installed
@@ -37,4 +43,6 @@ tasks:
           echo "ollama is installed"
         else
           echo "ollama is not installed. Please install it from https://ollama.com."
+
+          exit 1
         fi

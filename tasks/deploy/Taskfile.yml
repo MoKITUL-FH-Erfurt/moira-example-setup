@@ -6,3 +6,13 @@ tasks:
     cmds:
       - docker compose up -d
       - echo "All services started. Moodle is accessible at http://localhost:8080"
+
+  clean:
+    desc: Stop and remove all Docker containers and volumes
+    cmds:
+      - |
+        echo "Stopping and removing Docker containers..."
+        docker compose down || echo "No Docker containers to stop."
+      - |
+        echo "Cleaning up Docker volumes..."
+        docker volume prune -f || echo "No Docker volumes to clean."
