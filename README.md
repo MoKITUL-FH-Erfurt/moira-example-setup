@@ -1,22 +1,26 @@
-# MOIRA Example Setup
+# MOIRA Example Setup 🚀
 
 Welcome to the **MOIRA Example Setup** repository! This project provides a complete environment for setting up and running the MOIRA Moodle plugins and related services. It includes tasks for verifying prerequisites, cloning repositories, building plugins, deploying services, and installing plugins into Moodle.
 
-## Features
+---
+
+## Features ✨
 
 - **Automated Setup**: Easily verify prerequisites, clone repositories, build plugins, and deploy services using Taskfile tasks.
 - **Moodle Integration**: Install and manage MOIRA plugins in a Moodle environment.
 - **Dockerized Example Environment**: Pre-configured Docker Compose setup for Moodle, MariaDB, phpMyAdmin, Ollama, Qdrant, and MongoDB.
 
-## What does this simplify?
+---
+
+## What does this simplify? 🤔
 
 The provided scripts simplify the process of building and running the application.
 As the complexity of the project grew, we needed a better way to quickly get the app up and running.
-We hope this makes it easier for you to setup the project.
+We hope this makes it easier for you to set up the project.
 
 ---
 
-## Prerequisites
+## Prerequisites ✅
 
 Before you begin, ensure you have the following installed on your system:
 
@@ -45,7 +49,7 @@ Do the same for the docker-compose.example.yml and copy it to docker-compose.yml
 cp docker-compose.example.yml docker-compose.yml
 ```
 
-## Getting started
+## Getting started 🏁
 
 In order to run the application just run:
 
@@ -53,13 +57,18 @@ In order to run the application just run:
 task
 ```
 
-This will verify the tools, clone the repositories, build all plugins, deploy an example setup of moodle and finally install the plugins.
+1. ✅ Verify the tools
+2. 📥 Clone the repositories
+3. 🛠️ Build all plugins
+4. 🐳 Deploy an example setup of Moodle
+5. 📦 Install the plugins
+
 In case you do not want to use this or already have an existing setup, you do not need to use the combined script. 
 You can just utilize the individual scripts.
 
 For more information on the steps the scripts simplify, see below.
 
-## Manual Setup
+## Manual Setup 🛠️
 
 Follow these steps to setup the environment.
 
@@ -96,24 +105,26 @@ Install MoKITUL plugins into Moodle:
 task install
 ```
 
-## Folder Structure
+## Folder Structure 📂
 
+```plaintext
 moira-example-setup/
-├── tasks/                 # Taskfile definitions for modular tasks
-│   ├── build/             # Build-related tasks
-│   ├── clone/             # Clone-related tasks
-│   ├── deploy/            # Deployment-related tasks
-│   ├── install/           # Plugin installation tasks
-│   └── verify/            # Prerequisite verification tasks
-├── [docker-compose.example.yml](http://_vscodecontentref_/1)  # Docker Compose configuration
-├── .gitignore             # Ignored files and directories
-├── LICENSE                # License information
-├── [README.md](http://_vscodecontentref_/2)              # Project documentation
-└── [Taskfile.yml](http://_vscodecontentref_/3)           # Main Taskfile for orchestrating tasks and running the combined setup
+├── tasks/                      # Taskfile definitions for modular tasks
+│   ├── build/                  # Build-related tasks
+│   ├── clone/                  # Clone-related tasks
+│   ├── deploy/                 # Deployment-related tasks
+│   ├── install/                # Plugin installation tasks
+│   └── verify/                 # Prerequisite verification tasks
+├── docker-compose.example.yml  # Example Docker Compose configuration
+├── .gitignore                  # Ignored files and directories
+├── LICENSE                     # License information
+├── README.md                   # Project documentation
+└── Taskfile.yml                # Main Taskfile for running the combined setup
+```
 
-## License
+## License 📜
 
 This project is licensed under the [MIT License](LICENSE)
 
-## Support
+## Support  💬
 If you encounter any issues or have questions, feel free to open an issue in this repository or contact us at [MoKITUL FH Erfurt](https://github.com/MoKITUL-FH-Erfurt).
