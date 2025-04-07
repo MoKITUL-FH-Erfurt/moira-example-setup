@@ -20,7 +20,7 @@ We hope this makes it easier for you to set up the project.
 
 ---
 
-## Prerequisites ✅
+## Getting started ✅
 
 Before you begin, ensure you have the following installed on your system:
 
@@ -29,6 +29,7 @@ Before you begin, ensure you have the following installed on your system:
 - [Git](https://git-scm.com/)
 - [Docker](https://www.docker.com/)
 - [Ollama](https://ollama.com/)
+- [Taskfile](https://taskfile.dev)
 
 You can verify these prerequisites using the following command:
 ```bash
@@ -49,7 +50,7 @@ Do the same for the docker-compose.example.yml and copy it to docker-compose.yml
 cp docker-compose.example.yml docker-compose.yml
 ```
 
-## Getting started 🏁
+## Install Instructions 🏁
 
 In order to run the application just run:
 
@@ -68,42 +69,86 @@ You can just utilize the individual scripts.
 
 For more information on the steps the scripts simplify, see below.
 
-## Manual Setup 🛠️
+## Manual Setup - Detailed Instructions 🛠️
 
-Follow these steps to setup the environment.
+If you prefer to set up the project manually without using the provided Taskfile scripts, follow these detailed steps:
 
-1. Clone the repository.
+### 1. Verify Prerequisites ✅
 
-```bash
-git clone https://github.com/MoKITUL-FH-Erfurt/moira-example-setup.git
-cd moira-example-setup
-```
-2. Clone Required Repositories
-Clone all plugin and API repositories:
+Ensure the required tools are installed on your system
 
 ```bash
-task clone
+task --version
+nvm --version
+node --version
+git --version
+docker --version
+ollama --version
 ```
 
-3. Build the plugins
-Build all cloned plugin repositories:
+### 2. Clone Required Repositories 📂
+Manually clone the plugin and API repositories listed in the Taskfile.yml:
 
 ```bash
-task build
+git clone https://github.com/MoKITUL-FH-Erfurt/moira-core-plugin.git
+git clone https://github.com/MoKITUL-FH-Erfurt/moira-block-plugin.git
+git clone https://github.com/MoKITUL-FH-Erfurt/moira-activity-plugin.git
 ```
 
-4. Deploy Services
-Start all Docker containers:
-```bash
-task deploy
-```
-
-5. Install plugins
-Install MoKITUL plugins into Moodle:
+Clone the API repository:
 
 ```bash
-task install
+git clone https://github.com/MoKITUL-FH-Erfurt/moira-api.git
 ```
+
+### 3. Build the Plugins 🛠️
+Navigate into each plugin repository and build it manually. For example:
+
+```bash
+cd moira-core-plugin
+task
+cd ../moira-block-plugin
+task
+cd ../moira-activity-plugin
+task
+```
+
+### 4. Setup Docker Compose
+
+Start the Docker Containers:
+```bash
+docker compose up -d
+```
+
+### 5. Install Plugins into Moodle 📦
+Ensure all containers are running:
+```bash
+docker compose ps
+```
+
+Install the plugins using moosh inside the Moodle container:
+
+```bash
+docker compose exec moodle sh -c "[ -f /usr/local/bin/moosh ] || (apt-get update && apt-get install -y git unzip && cd /tmp && git clone https://github.com/tmuras/moosh && cd moosh && composer install && ln -s \$(pwd)/moosh.php /usr/local/bin/moosh)"
+```
+
+Install each plugin:
+
+```bash
+docker compose exec moodle sh -c "cd /bitnami/moodle && moosh plugin-install /bitnami/moodle/moira-core-plugin"
+docker compose exec moodle sh -c "cd /bitnami/moodle && moosh plugin-install /bitnami/moodle/moira-block-plugin"
+docker compose exec moodle sh -c "cd /bitnami/moodle && moosh plugin-install /bitnami/moodle/moira-activity-plugin"
+```
+
+Trigger a Moodle upgrade to recognize the plugins:
+
+```bash
+docker compose exec moodle sh -c "cd /bitnami/moodle && php admin/cli/upgrade.php --non-interactive"
+```
+
+### 6. Verify the Setup ✅
+
+Access moodle and enjoy! 🚀
 
 ## Folder Structure 📂
 
