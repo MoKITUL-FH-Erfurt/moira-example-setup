@@ -1,6 +1,6 @@
-# MOIRA Example Setup 🚀
+# MoIRA Example Setup 🚀
 
-Welcome to the **MOIRA Example Setup** repository! This project provides a complete environment for setting up and running the MOIRA Moodle plugins and related services. It includes tasks for verifying prerequisites, cloning repositories, building plugins, deploying services, and installing plugins into Moodle.
+Welcome to the **MoIRA Example Setup** repository! This project provides a complete environment for setting up and running the MoIRA Moodle plugins and related services. It includes tasks for verifying prerequisites, cloning repositories, building plugins, deploying services, and installing plugins into Moodle.
 
 ## TLDR
 
@@ -15,7 +15,7 @@ Beware this might crash if not all necessary tools are installed.
 ## Features ✨
 
 - **Automated Setup**: Easily verify prerequisites, clone repositories, build plugins, and deploy services using Taskfile tasks.
-- **Moodle Integration**: Install and manage MOIRA plugins in a Moodle environment.
+- **Moodle Integration**: Install and manage MoIRA plugins in a Moodle environment.
 - **Dockerized Example Environment**: Pre-configured Docker Compose setup for Moodle, MariaDB, phpMyAdmin, Ollama, Qdrant, and MongoDB.
 
 ## What does this simplify? 🤔

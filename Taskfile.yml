@@ -1,11 +1,11 @@
 version: '3'
 
 includes:
-  clone: ./tasks/clone/Taskfile.yml
-  build: ./tasks/build/Taskfile.yml
-  deploy: ./tasks/deploy/Taskfile.yml
-  install: ./tasks/install/Taskfile.yml
-  verify: ./tasks/verify/Taskfile.yml
+  clone: ./tasks/clone
+  build: ./tasks/build
+  deploy: ./tasks/deploy
+  install: ./tasks/install
+  verify: ./tasks/verify
 
 vars:
   github_base_url: "https://github.com/MoKITUL-FH-Erfurt"
