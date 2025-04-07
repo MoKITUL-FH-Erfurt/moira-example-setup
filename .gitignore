@@ -1,0 +1,6 @@
+mokitul-core-plugin
+mokitul-block-plugin
+mokitul-activity-plugin
+
+.env
+docker-compose.yml

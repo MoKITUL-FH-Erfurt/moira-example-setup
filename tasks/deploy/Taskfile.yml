@@ -1,0 +1,8 @@
+version: '3'
+
+tasks:
+  start:
+    desc: Start all Docker containers
+    cmds:
+      - docker compose up -d
+      - echo "All services started. Moodle is accessible at http://localhost:8080"

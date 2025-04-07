@@ -1,0 +1,49 @@
+version: '3'
+
+vars:
+  github_base_url: "https://github.com/MoKITUL-FH-Erfurt"
+  plugin_repos:
+    - "moira-core-plugin"
+    - "moira-block-plugin"
+    - "moira-activity-plugin"
+  api_repo: "moira-api"
+
+tasks:
+  verify:
+    desc: Verify prerequisites (nvm, Node.js LTS, git, docker, ollama)
+    cmds:
+      - task: verify:verify-prerequisites
+
+  clone:
+    desc: Clone all required plugin repositories
+    cmds:
+      - task: clone:get-all
+
+  build:
+    desc: Build all plugin repositories
+    cmds:
+      - task: build:build-plugins
+
+  deploy:
+    desc: Start all Docker containers
+    cmds:
+      - task: deploy:start
+
+  install:
+    desc: Install all MoKITUL plugins into Moodle
+    cmds:
+      - task: install:install-mokitul-plugins
+
+  run-all:
+    desc: Run all tasks in order - verify, clone, build, deploy, install
+    deps:
+      - task: verify
+      - task: clone
+      - task: build
+      - task: deploy
+      - task: install
+
+  default:
+    desc: Run all tasks in order - verify, clone, build, deploy, install
+    cmds:
+      - task: run-all

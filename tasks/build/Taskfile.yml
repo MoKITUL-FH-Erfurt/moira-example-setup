@@ -1,0 +1,16 @@
+version: '3'
+
+tasks:
+  build-plugins:
+    desc: Build all plugin repositories
+    cmds:
+      - |
+        for repo in {{.plugin_repos}}; do
+          dir=$(basename "$repo" .git)
+          if [ -d "$dir" ]; then
+            echo "Building $dir..."
+            (cd "$dir" && task)
+          else
+            echo "Directory $dir does not exist. Clone it first using 'task clone:get-plugins'."
+          fi
+        done

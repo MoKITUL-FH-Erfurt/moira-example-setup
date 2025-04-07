@@ -1,0 +1,44 @@
+version: '3'
+
+tasks:
+  get-plugins:
+    desc: Clone or update plugins based on existence and --newest flag
+    cmds:
+      - |
+        for repo in {{.plugin_repos}}; do
+          dir=$(basename "$repo" .git)
+          if [ -d "$dir" ]; then
+            if [ "{{.CLI_ARGS | contains '--newest'}}" = "true" ]; then
+              echo "Updating $dir..."
+              (cd "$dir" && git fetch && git pull)
+            else
+              echo "Directory $dir already exists. Use --newest flag to update."
+            fi
+          else
+            echo "Cloning $dir..."
+            git clone "{{.github_base_url}}/$repo.git"
+          fi
+        done
+
+  get-api:
+    desc: Clone or update API based on existence and --newest flag
+    cmds:
+      - |
+        dir=$(basename "{{.api_repo}}" .git)
+        if [ -d "$dir" ]; then
+          if [ "{{.CLI_ARGS | contains '--newest'}}" = "true" ]; then
+            echo "Updating $dir..."
+            (cd "$dir" && git fetch && git pull)
+          else
+            echo "Directory $dir already exists. Use --newest flag to update."
+          fi
+        else
+          echo "Cloning $dir..."
+          git clone "{{.github_base_url}}/{{.api_repo}}.git"
+        fi
+
+  get-all:
+    desc: Clone or update all repositories
+    cmds:
+      - task: get-plugins
+      - task: get-api

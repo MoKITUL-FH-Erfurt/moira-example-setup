@@ -1,0 +1,40 @@
+version: '3'
+
+tasks:
+  verify-prerequisites:
+    desc: Check if required tools (nvm, Node.js LTS, git, docker, ollama) are installed
+    cmds:
+      - |
+        # Check if nvm is installed
+        if command -v nvm >/dev/null 2>&1; then
+          echo "nvm is installed"
+          # Check if Node.js LTS version is installed
+          if nvm list | grep -q 'lts/*'; then
+            echo "Node.js LTS version is installed"
+          else
+            echo "Node.js LTS version is not installed. Install it using 'nvm install --lts'."
+          fi
+        else
+          echo "nvm is not installed. Please install it from https://github.com/nvm-sh/nvm."
+        fi
+
+        # Check if git is installed
+        if command -v git >/dev/null 2>&1; then
+          echo "git is installed"
+        else
+          echo "git is not installed. Please install it using your package manager."
+        fi
+
+        # Check if docker is installed
+        if command -v docker >/dev/null 2>&1; then
+          echo "docker is installed"
+        else
+          echo "docker is not installed. Please install it from https://www.docker.com."
+        fi
+
+        # Check if ollama is installed
+        if command -v ollama >/dev/null 2>&1; then
+          echo "ollama is installed"
+        else
+          echo "ollama is not installed. Please install it from https://ollama.com."
+        fi

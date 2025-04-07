@@ -1,0 +1,30 @@
+version: '3'
+
+vars:
+  plugin_repos:
+    - "mokitul-core-plugin"
+    - "mokitul-block-plugin"
+    - "mokitul-activity-plugin"
+
+tasks:
+  install-mokitul-plugins:
+    desc: Install all MoKITUL plugins into Moodle from cloned repositories
+    cmds:
+      - |
+        # Install moosh if not already in the container
+        docker compose exec moodle sh -c "[ -f /usr/local/bin/moosh ] || (apt-get update && apt-get install -y git unzip && cd /tmp && git clone https://github.com/tmuras/moosh && cd moosh && composer install && ln -s \$(pwd)/moosh.php /usr/local/bin/moosh)"
+        
+        # Install each plugin from the cloned repositories
+        for repo in {{.plugin_repos}}; do
+          if [ -d "$repo" ]; then
+            echo "Installing plugin from $repo"
+            docker compose exec moodle sh -c "cd /bitnami/moodle && moosh plugin-install /bitnami/moodle/$repo"
+          else
+            echo "Directory $repo does not exist. Clone it first using 'task get-plugins'."
+          fi
+        done
+        
+        # Trigger Moodle upgrade to recognize all plugins
+        docker compose exec moodle sh -c "cd /bitnami/moodle && php admin/cli/upgrade.php --non-interactive"
+        
+        echo "All MoKITUL plugins have been installed"
