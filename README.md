@@ -57,6 +57,9 @@ Do the same for the docker-compose.example.yml and copy it to docker-compose.yml
 cp docker-compose.example.yml docker-compose.yml
 ```
 
+Before you continue running the script, be advised that the script might modify or remove containers from your system. Please look at the docker compose to check for conflicts.
+Usage at your own risk.
+
 ## Install Instructions 🏁
 
 In order to run the application just run:
@@ -65,6 +68,7 @@ In order to run the application just run:
 task
 ```
 
+It automatically runs the following steps:
 1. ✅ Verify the tools
 2. 📥 Clone the repositories
 3. 🛠️ Build all plugins
@@ -133,25 +137,9 @@ Ensure all containers are running:
 docker compose ps
 ```
 
-Install the plugins using moosh inside the Moodle container:
+It is advised to install the plugins using the web user interface.
 
-```bash
-docker compose exec moodle sh -c "[ -f /usr/local/bin/moosh ] || (apt-get update && apt-get install -y git unzip && cd /tmp && git clone https://github.com/tmuras/moosh && cd moosh && composer install && ln -s \$(pwd)/moosh.php /usr/local/bin/moosh)"
-```
-
-Install each plugin:
-
-```bash
-docker compose exec moodle sh -c "cd /bitnami/moodle && moosh plugin-install /bitnami/moodle/moira-core-plugin"
-docker compose exec moodle sh -c "cd /bitnami/moodle && moosh plugin-install /bitnami/moodle/moira-block-plugin"
-docker compose exec moodle sh -c "cd /bitnami/moodle && moosh plugin-install /bitnami/moodle/moira-activity-plugin"
-```
-
-Trigger a Moodle upgrade to recognize the plugins:
-
-```bash
-docker compose exec moodle sh -c "cd /bitnami/moodle && php admin/cli/upgrade.php --non-interactive"
-```
+Follow the guide [here](https://docs.moodle.org/405/en/Installing_plugins).
 
 ### 6. Verify the Setup ✅
 
