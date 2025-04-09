@@ -1,6 +1,7 @@
 # MoIRA Example Setup 🚀
 
 Welcome to the **MoIRA Example Setup** repository! This project provides a complete environment for setting up and running the MoIRA Moodle plugins and related services. It includes tasks for verifying prerequisites, cloning repositories, building plugins, deploying services, and installing plugins into Moodle.
+This serves as a development environment, or a basic example on how to integrate the ecosystem into your moodle instance.
 
 ## TLDR
 

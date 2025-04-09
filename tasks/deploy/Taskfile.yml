@@ -16,7 +16,4 @@ tasks:
       - |
         echo "Ensuring all project volumes are removed..."
         docker volume rm -f moira-example-setup_db_data moira-example-setup_moodle_data moira-example-setup_moodledata moira-example-setup_ollama_data moira-example-setup_qdrant_data moira-example-setup_mongodb_data 2>/dev/null || echo "No remaining volumes to remove."
-      - |
-        echo "Cleaning up any other unused volumes..."
-        docker volume prune -f || echo "No unused volumes to clean."
       - echo "All containers and volumes have been cleaned up successfully."
