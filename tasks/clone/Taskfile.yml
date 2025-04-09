@@ -5,18 +5,19 @@ tasks:
     desc: Clone or update plugins based on existence and --newest flag
     cmds:
       - |
-        for repo in {{.plugin_repos}}; do
+        echo "Cloning or updating plugins..."
+        for repo in {{range .plugin_repos}}{{.}} {{end}}; do
           dir=$(basename "$repo" .git)
           if [ -d "$dir" ]; then
-            if [ "{{.CLI_ARGS | contains '--newest'}}" = "true" ]; then
+            if echo "{{.CLI_ARGS}}" | grep -q -- '--newest'; then
               echo "Updating $dir..."
-              (cd "$dir" && git fetch && git pull)
+              (cd "$dir" && git fetch && git pull) || { echo "Error: Failed to update $dir"; exit 1; }
             else
               echo "Directory $dir already exists. Use --newest flag to update."
             fi
           else
             echo "Cloning $dir..."
-            git clone "{{.github_base_url}}/$repo.git" || { echo "Error: Failed to clone $dir"; exit 1; }
+            git clone "{{.github_base_url}}/$repo" || { echo "Error: Failed to clone $dir"; exit 1; }
           fi
         done
 
@@ -24,11 +25,12 @@ tasks:
     desc: Clone or update API based on existence and --newest flag
     cmds:
       - |
+        echo "Cloning or updating API..."
         dir=$(basename "{{.api_repo}}" .git)
         if [ -d "$dir" ]; then
-          if [ "{{.CLI_ARGS | contains '--newest'}}" = "true" ]; then
+          if echo "{{.CLI_ARGS}}" | grep -q -- '--newest'; then
             echo "Updating $dir..."
-            (cd "$dir" && git fetch && git pull)
+            (cd "$dir" && git fetch && git pull) || { echo "Error: Failed to update $dir"; exit 1; }
           else
             echo "Directory $dir already exists. Use --newest flag to update."
           fi

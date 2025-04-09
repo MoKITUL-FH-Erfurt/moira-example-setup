@@ -10,10 +10,10 @@ includes:
 vars:
   github_base_url: "https://github.com/MoKITUL-FH-Erfurt"
   plugin_repos:
-    - "moira-core-plugin"
-    - "moira-block-plugin"
-    - "moira-activity-plugin"
-  api_repo: "moira-api"
+    - "mokitul-core-plugin"
+    - "mokitul-block-plugin"
+    - "mokitul-activity-plugin"
+  api_repo: "mokitul-api"
 
 tasks:
   verify:
@@ -39,23 +39,63 @@ tasks:
   install:
     desc: Install all MoKITUL plugins into Moodle
     cmds:
-      - task: install:install-mokitul-plugins
+      - task: install:install
 
   run-all:
     desc: Run all tasks in order - verify, clone, build, deploy, install
-    deps:
-      - task: verify
+    cmds:
+      # - task: verify
       - task: clone
       - task: build
       - task: deploy
+      - task: wait-for-moodle
       - task: install
 
   clean:
     desc: Clean up all plugin repositories
     cmds:
-      - task: clone:clean-plugins
-      - task: clone:clean-api
+      - task: clone:clean
       - task: deploy:clean
+
+
+  wait-for-moodle:
+    desc: Wait for Moodle to be fully initialized
+    cmds:
+      - |
+        echo "Waiting for Moodle to be fully initialized..."
+        sleep 5
+
+        # Maximum wait time (10 minutes)
+        max_attempts=60
+        attempt=0
+        
+        # Get the Moodle URL
+        MOODLE_URL="http://localhost:8080"
+        
+        # Try to reach Moodle
+        until curl -s -f -o /dev/null "$MOODLE_URL" || [ $attempt -ge $max_attempts ]; do
+          attempt=$((attempt+1))
+          echo "Attempt $attempt/$max_attempts: Moodle not ready yet, waiting 10 seconds..."
+          sleep 10
+        done
+        
+        if [ $attempt -lt $max_attempts ]; then
+          echo "Moodle is up and running!"
+          # Additional check for installation completion
+          sleep 10  # Give it a bit more time for DB setup
+          
+          # Check if we get a 200 response and the page doesn't contain "installation"
+          if curl -s "$MOODLE_URL" | grep -v -i "installation" > /dev/null; then
+            echo "Moodle installation completed successfully!"
+          else
+            echo "Moodle might still be in installation process. Check manually."
+            exit 1
+          fi
+        else
+          echo "Timed out waiting for Moodle to start. Check container logs."
+          docker logs {{.moodle_container_id}} | tail -n 50
+          exit 1
+        fi
 
   default:
     desc: Run all tasks in order - verify, clone, build, deploy, install

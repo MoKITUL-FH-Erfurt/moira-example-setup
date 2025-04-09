@@ -5,7 +5,7 @@ tasks:
     desc: Build all plugin repositories
     cmds:
       - |
-        for repo in {{.plugin_repos}}; do
+        for repo in {{range .plugin_repos}}{{.}} {{end}}; do
           dir=$(basename "$repo" .git)
           if [ -d "$dir" ]; then
             echo "Building $dir..."

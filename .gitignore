@@ -2,5 +2,7 @@ mokitul-core-plugin
 mokitul-block-plugin
 mokitul-activity-plugin
 
+mokitul-api
+
 .env
 docker-compose.yml

@@ -1,30 +1,133 @@
 version: '3'
 
-vars:
-  plugin_repos:
-    - "mokitul-core-plugin"
-    - "mokitul-block-plugin"
-    - "mokitul-activity-plugin"
-
 tasks:
-  install-mokitul-plugins:
-    desc: Install all MoKITUL plugins into Moodle from cloned repositories
+  copy-plugins:
+    desc: Copy all MoKITUL plugins into the correct Moodle directories
+    vars:
+      moodle_container_id:
+        sh: docker ps --filter "ancestor=bitnami/moodle" -q
     cmds:
       - |
-        # Install moosh if not already in the container
-        docker compose exec moodle sh -c "[ -f /usr/local/bin/moosh ] || (apt-get update && apt-get install -y git unzip && cd /tmp && git clone https://github.com/tmuras/moosh && cd moosh && composer install && ln -s \$(pwd)/moosh.php /usr/local/bin/moosh)"
-        
-        # Install each plugin from the cloned repositories
-        for repo in {{.plugin_repos}}; do
-          if [ -d "$repo" ]; then
-            echo "Installing plugin from $repo"
-            docker compose exec moodle sh -c "cd /bitnami/moodle && moosh plugin-install /bitnami/moodle/$repo"
+        container_id=$(docker ps --filter "ancestor=bitnami/moodle" -q)
+        echo "Copying plugins into the Moodle container..."
+
+        # Define a reusable function to determine the plugin destination and type
+        determine_destination_and_name() {
+          local repo_name="$1"
+          local plugin_name
+          local destination
+          local type
+          
+          if [[ "$repo_name" == "mokitul-core-plugin" ]]; then
+            # Special case for core plugin - install as local/core
+            type="local"
+            plugin_name="mokitul"
+            destination="/bitnami/moodle/local/$plugin_name"
+          elif [[ "$repo_name" == *"block"* ]]; then
+            # Block plugins should be in /blocks/<blockname>/
+            type="block"
+            plugin_name=$(echo "$repo_name" | sed 's/mokitul-block-//g')
+            destination="/bitnami/moodle/blocks/mokitul"
+          elif [[ "$repo_name" == *"activity"* ]]; then
+            # Activity plugins should be in /mod/<modname>/
+            type="mod"
+            plugin_name=$(echo "$repo_name" | sed 's/mokitul-activity-//g')
+            destination="/bitnami/moodle/mod/mokitul"
+          elif [[ "$repo_name" == *"local"* ]]; then
+            # Local plugins should be in /local/<localname>/
+            type="local"
+            plugin_name=$(echo "$repo_name" | sed 's/mokitul-local-//g')
+            destination="/bitnami/moodle/local/$plugin_name"
           else
-            echo "Directory $repo does not exist. Clone it first using 'task get-plugins'."
+            # Default to local if type is unknown
+            type="local"
+            plugin_name=$(echo "$repo_name" | sed 's/mokitul-//g')
+            destination="/bitnami/moodle/local/$plugin_name"
+          fi
+          
+          echo "$destination $type $plugin_name"
+        }
+
+        # Iterate over the plugins and copy them to the correct directories
+        for repo in {{range .plugin_repos}}{{.}} {{end}}; do
+          if [ -d "$repo" ]; then
+            repo_name=$(basename "$repo")
+            read -r destination type plugin_name < <(determine_destination_and_name "$repo_name")
+            
+            echo "Copying $repo_name to $destination (plugin type: $type, name: $plugin_name)"
+            
+            # Create destination directory if it doesn't exist
+            docker exec {{.moodle_container_id}} mkdir -p "$destination"
+            
+            # Copy files to temporary directory first
+            docker exec {{.moodle_container_id}} mkdir -p /tmp/plugin-temp
+            docker cp "$repo"/. {{.moodle_container_id}}:/tmp/plugin-temp/
+            
+            # Move files to correct destination
+            docker exec {{.moodle_container_id}} sh -c "cp -r /tmp/plugin-temp/* $destination/"
+            docker exec {{.moodle_container_id}} sh -c "rm -rf /tmp/plugin-temp"
+            
+            # Verify version.php exists in the plugin directory
+            docker exec {{.moodle_container_id}} sh -c "if [ ! -f $destination/version.php ]; then echo 'WARNING: version.php not found in $destination'; fi"
+            
+            # Debug - list files in the plugin directory
+            echo "Files in $destination:"
+            docker exec {{.moodle_container_id}} ls -la "$destination"
+          else
+            echo "Directory $repo does not exist. Clone it first using 'task clone:get-plugins'."
+            exit 1
           fi
         done
         
-        # Trigger Moodle upgrade to recognize all plugins
-        docker compose exec moodle sh -c "cd /bitnami/moodle && php admin/cli/upgrade.php --non-interactive"
+        echo "All plugins have been copied into the Moodle container."
         
-        echo "All MoKITUL plugins have been installed"
+        # Debug - Check all plugin directories
+        echo "Listing plugin directories:"
+        docker exec {{.moodle_container_id}} sh -c "ls -la /bitnami/moodle/blocks/"
+        docker exec {{.moodle_container_id}} sh -c "ls -la /bitnami/moodle/mod/"
+        docker exec {{.moodle_container_id}} sh -c "ls -la /bitnami/moodle/local/"
+
+  install-plugins:
+  desc: Install all MoKITUL plugins into Moodle
+  vars:
+    moodle_container_id:
+      sh: docker ps --filter "ancestor=bitnami/moodle" -q
+  cmds:
+    - |
+      echo "Installing plugins into Moodle..."
+      
+      # Fix permissions for both moodle and moodledata directories
+      echo "Setting correct permissions..."
+      docker exec {{.moodle_container_id}} sh -c "chmod -R 755 /bitnami/moodle && chown -R daemon:daemon /bitnami/moodle"
+      docker exec {{.moodle_container_id}} sh -c "chmod -R 777 /bitnami/moodledata && chown -R daemon:daemon /bitnami/moodledata"
+      
+      # Create cache directory with correct permissions if it doesn't exist
+      docker exec {{.moodle_container_id}} sh -c "mkdir -p /bitnami/moodledata/cache && chmod -R 777 /bitnami/moodledata/cache"
+      
+      # Enable debugging in Moodle config
+      echo "Enabling debug mode in Moodle config..."
+      docker exec {{.moodle_container_id}} sh -c 'grep -q "debugging" /bitnami/moodle/config.php || sed -i "/require_once/i \$CFG->debug = E_ALL;\n\$CFG->debugdisplay = true;" /bitnami/moodle/config.php'
+      
+      # Clear Moodle caches
+      echo "Clearing Moodle caches..."
+      docker exec {{.moodle_container_id}} sh -c "php /bitnami/moodle/admin/cli/purge_caches.php"
+      
+      # Debug - Run plugin checks
+      echo "Checking Moodle plugins..."
+      docker exec {{.moodle_container_id}} sh -c "php /bitnami/moodle/admin/cli/check_database_schema.php"
+      
+      # Trigger Moodle upgrade to recognize all plugins
+      echo "Triggering Moodle upgrade..."
+      docker exec {{.moodle_container_id}} sh -c "cd /bitnami/moodle && php admin/cli/upgrade.php --non-interactive"
+      
+      # Check plugin installation status
+      echo "Checking installed plugins:"
+      docker exec {{.moodle_container_id}} sh -c "php /bitnami/moodle/admin/cli/list_plugins.php"
+      
+      echo "Moodle upgrade completed. All plugins have been installed."
+
+  install:
+    desc: Copy and install all MoKITUL plugins into Moodle
+    cmds:
+      - task: copy-plugins
+      - task: install-plugins
