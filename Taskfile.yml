@@ -30,6 +30,7 @@ tasks:
     desc: Build all plugin repositories
     cmds:
       - task: build:build-plugins
+      - task: build:build-docker-image
 
   deploy:
     desc: Start all Docker containers
@@ -49,7 +50,7 @@ tasks:
       - task: build
       - task: deploy
       - task: wait-for-moodle
-      - task: install
+      #- task: install
 
   clean:
     desc: Clean up all plugin repositories

@@ -1,35 +1,38 @@
 version: '3'
 
 services:
-  # MariaDB für Moodle
+  # MariaDB for Moodle
   db:
-    image: mariadb:10.11
+    image: docker.io/bitnami/mariadb:11.4
+    container_name: moodle-mariadb
     environment:
-      MYSQL_ROOT_PASSWORD: moodleroot
-      MYSQL_DATABASE: moodle
-      MYSQL_USER: moodle
-      MYSQL_PASSWORD: moodle
+      - ALLOW_EMPTY_PASSWORD=no
+      - MARIADB_USER=${DATABASE_USER}
+      - MARIADB_DATABASE=${DATABASE_NAME}
+      - MARIADB_CHARACTER_SET=${MARIADB_CHARACTER_SET}
+      - MARIADB_COLLATE=${MARIADB_COLLATE}
+      - MARIADB_ROOT_PASSWORD=${DATABASE_PASSWORD}
+      - MARIADB_PASSWORD=${DATABASE_PASSWORD}
+      - BITNAMI_DEBUG=false
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/bitnami/mariadb
 
-  # Moodle
   moodle:
-    image: bitnami/moodle:latest
-    depends_on:
-      - db
-    environment:
-      MOODLE_DATABASE_HOST: db
-      MOODLE_DATABASE_USER: moodle
-      MOODLE_DATABASE_PASSWORD: moodle
-      MOODLE_DATABASE_NAME: moodle
-      MOODLE_USERNAME: admin
-      MOODLE_PASSWORD: admin
-      MOODLE_SITE_NAME: MoKITUL
+    image: docker.io/bitnami/moodle:4.3.5
+    container_name: moodle
     ports:
       - "8080:8080"
+    environment:
+      - MOODLE_DATABASE_HOST=${DATABASE_HOST}
+      - MOODLE_DATABASE_USER=${DATABASE_USER}
+      - MOODLE_DATABASE_NAME=${DATABASE_NAME}
+      - MOODLE_DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - ALLOW_EMPTY_PASSWORD=no
+      - BITNAMI_VOLUME_DIR=/bitnami
+      - BITNAMI_DEBUG=false
     volumes:
-      - moodle_data:/bitnami/moodle
-      - moodledata:/bitnami/moodledata
+      - 'moodle_data:/bitnami/moodle'
+      - 'moodle_content:/bitnami/moodledata'
 
   # phpMyAdmin
   phpmyadmin:
@@ -46,6 +49,8 @@ services:
     image: ollama/ollama:latest
     ports:
       - "11434:11434"
+    environment:
+      OLLAMA_HOST: ${OLLAMA_HOST}
     volumes:
       - ollama_data:/root/.ollama
 
@@ -53,7 +58,11 @@ services:
   qdrant:
     image: qdrant/qdrant:latest
     ports:
-      - "6333:6333"
+      - "${QDRANT_PORT}:${QDRANT_PORT}"
+    environment:
+      QDRANT_HOST: ${QDRANT_HOST}
+      QDRANT_PORT: ${QDRANT_PORT}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION}
     volumes:
       - qdrant_data:/qdrant/storage
 
@@ -61,17 +70,58 @@ services:
   mongodb:
     image: mongo:latest
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: mongo
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
     ports:
-      - "27017:27017"
+      - "${MONGO_PORT}:${MONGO_PORT}"
     volumes:
       - mongodb_data:/data/db
+  mokitul-api-conversations:
+    image: mokitul-api:latest
+    container_name: mokitul-api-conversations
+    restart: always
+    environment:
+      #mongo
+      MONGODB_USER: "${MONGO_USERNAME}"
+      MONGODB_PASSWORD: "${MONGO_PASSWORD}"
+      MONGODB_SERVER: "${MONGO_HOST}"
+      MONGODB_COLLECTION: "${mokitul-collection}"
+      MONGODB_SERVER_PORT: "${MONGO_PORT}"
+      # ai model
+      OLLAMA_HOST: "${OLLAMA_HOST}"
+      MODEL: "${MODEL}"
+      EMBEDDING_DEVICE: "${DEVICE}"
+      EMBEDDING_MODEL: "${EMBEDDING_MODEL}"
+      CONTEXT_LENGTH: "${CONTEXT_LENGTH}"
+      TOKENIZERS_PARALLELISM: True
+      # vector db
+      QDRANT_HOST: "${QDRANT_HOST}"
+      QDRANT_PORT: "${QDRANT_PORT}"
+      QDRANT_API_KEY: "${QDRANT_API_KEY}"
+      QDRANT_COLLECTION: "mokitul-api-collection"
+      # retrival
+      TOP_N_COUNT_RERANKER: "${TOP_N_COUNT_RERANKER}"
+      TOP_N_COUNT_DENS: "${TOP_N_COUNT_DENS}"
+      TOP_N_COUNT_SPARSE: "${TOP_N_COUNT_SPARSS}"
+      #doc splitting
+      CHUNKE_SIZE: "${CHUNKE_SIZE}"
+      CHUNKE_OVERLAP: "${CHUNKE_OVERLAP}"
+      #basic
+      REQUST_TIMEOUT: "${REQUST_TIMEOUT}"
+      ENABLE_LLM_PATH: "false"
+      WORKER: 1
+      LOG_LEVEL: "${LOG_LEVEL}"
+      ROOT_PATH: "/api"
+      PORT: 8000
+      #moodle
+      MOODLE_HOST: "${MOODLE_HOST}"
+      MOODLE_API_KEY: "${MOODLE_API_KEY}"
+
 
 volumes:
   db_data:
   moodle_data:
-  moodledata:
+  moodle_content:
   ollama_data:
   qdrant_data:
   mongodb_data:

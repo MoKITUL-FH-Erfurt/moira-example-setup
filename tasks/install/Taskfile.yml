@@ -5,7 +5,8 @@ tasks:
     desc: Copy all MoKITUL plugins into the correct Moodle directories
     vars:
       moodle_container_id:
-        sh: docker ps --filter "ancestor=bitnami/moodle" -q
+        sh: docker ps --filter "ancestor=docker.io/bitnami/moodle:4.3.5" -q
+
     cmds:
       - |
         container_id=$(docker ps --filter "ancestor=bitnami/moodle" -q)
