@@ -157,6 +157,7 @@ moira-example-setup/
 │   ├── install/                # Plugin installation tasks
 │   └── verify/                 # Prerequisite verification tasks
 ├── docker-compose.example.yml  # Example Docker Compose configuration
+├── .env.example                # Example env file for configuration
 ├── .gitignore                  # Ignored files and directories
 ├── LICENSE                     # License information
 ├── README.md                   # Project documentation
