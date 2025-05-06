@@ -16,6 +16,8 @@ services:
       - BITNAMI_DEBUG=false
     volumes:
       - db_data:/bitnami/mariadb
+    networks:
+      - mynetwork
 
   moodle:
     image: docker.io/bitnami/moodle:4.3.5
@@ -33,6 +35,8 @@ services:
     volumes:
       - 'moodle_data:/bitnami/moodle'
       - 'moodle_content:/bitnami/moodledata'
+    networks:
+      - mynetwork
 
   # phpMyAdmin
   phpmyadmin:
@@ -43,16 +47,21 @@ services:
       PMA_HOST: db
     ports:
       - "8081:80"
+    networks:
+      - mynetwork
 
   # Ollama
   ollama:
     image: ollama/ollama:latest
+    container_name: ollama
     ports:
       - "11434:11434"
     environment:
       OLLAMA_HOST: ${OLLAMA_HOST}
     volumes:
       - ollama_data:/root/.ollama
+    networks:
+      - mynetwork
 
   # Qdrant
   qdrant:
@@ -65,6 +74,8 @@ services:
       QDRANT_COLLECTION: ${QDRANT_COLLECTION}
     volumes:
       - qdrant_data:/qdrant/storage
+    networks:
+      - mynetwork
 
   # MongoDB
   mongodb:
@@ -76,12 +87,17 @@ services:
       - "${MONGO_PORT}:${MONGO_PORT}"
     volumes:
       - mongodb_data:/data/db
+    networks:
+      - mynetwork
+
   mokitul-api-conversations:
     image: mokitul-api:latest
     container_name: mokitul-api-conversations
     restart: always
+    ports:
+      - "8000:8000"
     environment:
-      #mongo
+      # mongo
       MONGODB_USER: "${MONGO_USERNAME}"
       MONGODB_PASSWORD: "${MONGO_PASSWORD}"
       MONGODB_SERVER: "${MONGO_HOST}"
@@ -99,24 +115,25 @@ services:
       QDRANT_PORT: "${QDRANT_PORT}"
       QDRANT_API_KEY: "${QDRANT_API_KEY}"
       QDRANT_COLLECTION: "mokitul-api-collection"
-      # retrival
+      # retrieval
       TOP_N_COUNT_RERANKER: "${TOP_N_COUNT_RERANKER}"
       TOP_N_COUNT_DENS: "${TOP_N_COUNT_DENS}"
       TOP_N_COUNT_SPARSE: "${TOP_N_COUNT_SPARSS}"
-      #doc splitting
+      # doc splitting
       CHUNKE_SIZE: "${CHUNKE_SIZE}"
       CHUNKE_OVERLAP: "${CHUNKE_OVERLAP}"
-      #basic
+      # basic
       REQUST_TIMEOUT: "${REQUST_TIMEOUT}"
-      ENABLE_LLM_PATH: "false"
+      ENABLE_LLM_PATH: "true"
       WORKER: 1
       LOG_LEVEL: "${LOG_LEVEL}"
       ROOT_PATH: "/api"
       PORT: 8000
-      #moodle
+      # moodle
       MOODLE_HOST: "${MOODLE_HOST}"
       MOODLE_API_KEY: "${MOODLE_API_KEY}"
-
+    networks:
+      - mynetwork
 
 volumes:
   db_data:
@@ -125,3 +142,7 @@ volumes:
   ollama_data:
   qdrant_data:
   mongodb_data:
+
+networks:
+  mynetwork:
+    name: mynetwork
