@@ -50,19 +50,6 @@ services:
     networks:
       - mynetwork
 
-  # Ollama
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama
-    ports:
-      - "11434:11434"
-    environment:
-      OLLAMA_HOST: ${OLLAMA_HOST}
-    volumes:
-      - ollama_data:/root/.ollama
-    networks:
-      - mynetwork
-
   # Qdrant
   qdrant:
     image: qdrant/qdrant:latest
@@ -74,6 +61,16 @@ services:
       QDRANT_COLLECTION: ${QDRANT_COLLECTION}
     volumes:
       - qdrant_data:/qdrant/storage
+    networks:
+      - mynetwork
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
     networks:
       - mynetwork
 
@@ -124,7 +121,7 @@ services:
       CHUNKE_OVERLAP: "${CHUNKE_OVERLAP}"
       # basic
       REQUST_TIMEOUT: "${REQUST_TIMEOUT}"
-      ENABLE_LLM_PATH: "true"
+      ENABLE_LLM_PATH: True
       WORKER: 1
       LOG_LEVEL: "${LOG_LEVEL}"
       ROOT_PATH: "/api"
