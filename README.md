@@ -11,6 +11,8 @@ Run the following command to run the services and install the plugins:
 task
 ```
 
+After that you can continue with the [configuration](##initial-configuration). 
+
 Beware this might crash if not all necessary tools are installed.
 
 ## Features ✨
@@ -144,7 +146,9 @@ Follow the guide [here](https://docs.moodle.org/405/en/Installing_plugins).
 
 ### 6. Verify the Setup ✅
 
-Access moodle and enjoy! 🚀
+Continue with the configuration.
+
+After that you can access moodle and enjoy! 🚀
 
 ## Folder Structure 📂
 
@@ -157,11 +161,30 @@ moira-example-setup/
 │   ├── install/                # Plugin installation tasks
 │   └── verify/                 # Prerequisite verification tasks
 ├── docker-compose.example.yml  # Example Docker Compose configuration
+├── .env.example                # Example env file for configuration
 ├── .gitignore                  # Ignored files and directories
 ├── LICENSE                     # License information
 ├── README.md                   # Project documentation
 └── Taskfile.yml                # Main Taskfile for running the combined setup
 ```
+
+## Initial Configuration
+
+After running the task script, several settings need to be changed in moodle. 
+
+### Configure Plugins
+
+After opening [http://localhost:8080](Localhost in your Browser), you should set the options for the core plugin to something like this:
+
+![Configuration](/assets/images/config.jpg)
+
+### Open Ports and remove blocked URLs
+
+In a real scenario you would not need to (and should not!) do this as you would only access the services using proxies or DNS. For this development environment/playground we need to open the ports.
+
+Login to moodle (if you have not done it already) and head to the Site Administration Tab.
+Then visit the HTTP Security abd remove the interfering hosts list.
+Also add the ports (as configured) to the cURL allowed ports list.
 
 ## License 📜
 

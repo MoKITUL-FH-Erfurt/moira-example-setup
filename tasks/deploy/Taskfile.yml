@@ -4,7 +4,7 @@ tasks:
   start:
     desc: Start all Docker containers
     cmds:
-      - docker compose up -d
+      - docker compose --env-file .env up -d
       - echo "All services started. Moodle is accessible at http://localhost:8080"
 
   clean:

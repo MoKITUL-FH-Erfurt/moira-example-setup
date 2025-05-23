@@ -5,10 +5,10 @@ tasks:
     desc: Copy all MoKITUL plugins into the correct Moodle directories
     vars:
       moodle_container_id:
-        sh: docker ps --filter "ancestor=bitnami/moodle" -q
+        sh: docker ps --filter "ancestor=docker.io/bitnami/moodle:4.3.5" -q
+
     cmds:
       - |
-        container_id=$(docker ps --filter "ancestor=bitnami/moodle" -q)
         echo "Copying plugins into the Moodle container..."
 
         # Define a reusable function to determine the plugin destination and type
@@ -91,7 +91,7 @@ tasks:
   desc: Install all MoKITUL plugins into Moodle
   vars:
     moodle_container_id:
-      sh: docker ps --filter "ancestor=bitnami/moodle" -q
+      sh: docker ps --filter "ancestor=docker.io/bitnami/moodle:4.3.5" -q
   cmds:
     - |
       echo "Installing plugins into Moodle..."

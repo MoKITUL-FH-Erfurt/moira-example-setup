@@ -39,11 +39,30 @@ tasks:
           git clone "{{.github_base_url}}/{{.api_repo}}.git" || { echo "Error: Failed to clone $dir"; exit 1; }
         fi
 
+  get-moodle-client:
+    desc: Clone or update Moodle client based on existence and --newest flag
+    cmds:
+      - |
+        echo "Cloning or updating Moodle client..."
+        dir=$(basename "{{.client_repo}}" .git)
+        if [ -d "$dir" ]; then
+          if echo "{{.CLI_ARGS}}" | grep -q -- '--newest'; then
+            echo "Updating $dir..."
+            (cd "$dir" && git fetch && git pull) || { echo "Error: Failed to update $dir"; exit 1; }
+          else
+            echo "Directory $dir already exists. Use --newest flag to update."
+          fi
+        else
+          echo "Cloning $dir..."
+          git clone "{{.github_base_url}}/{{.client_repo}}.git" || { echo "Error: Failed to clone $dir"; exit 1; }
+        fi
+
   get-all:
     desc: Clone or update all repositories
     cmds:
       - task: get-plugins
       - task: get-api
+      - task: get-moodle-client
 
   clean:
     desc: Remove all cloned repositories
@@ -67,3 +86,12 @@ tasks:
         else
           echo "Directory $dir does not exist."
         fi
+        echo "Removing cloned Moodle client repository..."
+        dir=$(basename "{{.client_repo}}" .git)
+        if [ -d "$dir" ]; then
+          echo "Removing $dir..."
+          rm -rf "$dir"
+        else
+          echo "Directory $dir does not exist."
+        fi
+        echo "All cloned repositories have been removed."

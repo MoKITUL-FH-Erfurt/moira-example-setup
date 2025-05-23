@@ -14,3 +14,16 @@ tasks:
             echo "Directory $dir does not exist. Clone it first using 'task clone:get-plugins'."
           fi
         done
+  build-docker-image:
+    desc: Build Docker image for API repository
+    cmds:
+      - |
+        dir={{ .api_repo }}
+        echo "Checking directory: $dir"
+        echo $dir
+        if [ -d "$dir/.git" ]; then
+          echo "Building Docker image for $dir..."
+          (cd "$dir" && docker build -t "${dir}:latest" .)
+        else
+          echo "Directory $dir is not a Git repository. Clone it first using 'task clone:get-plugins'."
+        fi

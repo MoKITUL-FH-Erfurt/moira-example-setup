@@ -1,8 +1,9 @@
 mokitul-core-plugin
 mokitul-block-plugin
 mokitul-activity-plugin
-
+mokitul-client
 mokitul-api
 
 .env
 docker-compose.yml
+.DS_Store
